@@ -63,9 +63,42 @@ very close to each other, and solder bridges are very likely for the inexperienc
 
 ### PC SIDE SETUP & TEST
 
-You will need to ensure that your PC has the FTDI Virtual COM Port drivers innstalled (if they aren't
+You will need to ensure that your PC has the FTDI Virtual COM Port drivers installed (if they aren't
 already installed).
 
 They can be found here:
 [https://ftdichip.com/drivers/vcp-drivers/](https://ftdichip.com/drivers/vcp-drivers/)
+
+To test:
+1. Insert the TurbEverdrive into a PC Engine (or TurboGrafx) and ensure that it still has original functionality
+2. With the console off, connect a Windows PC to the TurboEverdrive cartridge, open "Device Manager", and expand the
+"Ports (COM & LPT)" section if you have one.
+3. Turn on the console, and watch the Device Manager enumerate the COM port - there should be a new "USB Serial Device"
+in the "Ports (COM &LPT) section.  Take note of the port number (mine is COM9).
+4. Now try using the original Krikzz "turbo-usb2.exe" to send a ROM file.
+
+# How to run the python version
+
+The normal command line is:
+```
+python SendTED.py <COM port> <ROM file>
+```
+
+In my case, this would work:
+```
+python SendTED.py COM9 testROM.pce
+```
+
+There are ways to change the 'SendTED.py' script into an .EXE file so that 'python' is not needed each time it
+is run, but I will leave that as an exercise for the reader.
+
+This should also work fine on other operating systems such as linux, but I have not tested it as yet; I would
+appreciate feedback on this.
+
+For any bugs or issues (for example, with odd-sized ROM files), please file an issue in the GitHub issue log
+with an example file in order for me to debug.
+
+I hope this is useful !
+
+Dave
 

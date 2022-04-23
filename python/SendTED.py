@@ -54,6 +54,7 @@ ser.flush()
 
 block_start = 0
 file_end = len(data)
+blocks_sent = 0
 
 # And the loop for sending data
 #
@@ -63,6 +64,9 @@ file_end = len(data)
 while ((file_end - block_start) >= 8192):
     ser.write(data[block_start:block_start+8192])
     block_start += 8192
+    blocks_sent += 1
+    if ((blocks_sent % 8) == 0):
+        print(".",end='',flush=True)
     if (file_end > block_start):
         ser.write(b'\x2B')
 

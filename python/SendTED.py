@@ -26,12 +26,45 @@ except:
 # Grab data from binary file to send
 #
 f = open(sys.argv[2], "rb") 
-data = f.read()
+inpdata = f.read()
 f.close()
 
-# now for Turbo Everdrive protocol:
+# flags for mappers for special games
 #
+sf2 = 0
+populous = 0
+pop_off = 0x1f26
+pop_chk = bytes("POPULOUS", 'utf-8')
 
+# Remove header if needed
+#
+block_start = 0
+if (len(inpdata) % 8192) == 0:
+    data = inpdata
+else:
+    if (len(inpdata) % 8192) == 512:
+        data = inpdata[512:]
+        print("Removing header")
+    else:
+        print("This is an odd size for a ROM file... are you sure it's OK ?")
+
+# Make 3Mbit games into linear address space if needed
+#
+if (len(data) == 393216):
+    tempdata = data
+    data = tempdata[0:262144] + tempdata[0:262144] + tempdata[262144:]
+
+# Set mapper flag for SF2 game
+#
+if (len(data) == 2621440):
+    sf2 = 1
+
+# Set mapper flag for Populous game
+#
+if (data[pop_off:pop_off+8] == pop_chk):
+    populous = 1
+
+# Now for Turbo Everdrive protocol:
 # This seems to query the port for an Everdrive
 #
 ser.write(b'\x2A') 
@@ -52,7 +85,6 @@ ser.write(b'\x2A')
 ser.write(b'\x67') 
 ser.flush()
 
-block_start = 0
 file_end = len(data)
 blocks_sent = 0
 
@@ -71,10 +103,25 @@ while ((file_end - block_start) >= 8192):
         ser.write(b'\x2B')
 
 if (file_end > block_start):
-    data += "\0" * (8192 - (file_end - block_start) )
+    print("file end = ", file_end, ", block_start = ", block_start)
+    data += b'\0' * (8192 - (file_end - block_start) )
     ser.write(data[block_start:block_start+8192])
 
+# No banks of data to follow
+#
 ser.write(b'\x2D') 
+
+print()
+# Enable mappers (if any)
+#
+if (sf2 == 1):
+    ser.write(b'\x73')
+else:
+    if (populous == 1):
+        ser.write(b'\x70')
+
+# End transmission
+#
 ser.write(b'\x2D') 
 ser.flush()
 
